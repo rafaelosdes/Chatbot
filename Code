@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Complexo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+            margin: 0;
+        }
+
+        .chat-container {
+            width: 400px;
+            background: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .chat-box {
+            max-height: 500px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .chat-box .message {
+            margin: 5px 0;
+        }
+
+        .chat-box .user {
+            text-align: right;
+        }
+
+        .chat-box .bot {
+            text-align: left;
+        }
+
+        #user-input {
+            width: calc(100% - 80px);
+            padding: 10px;
+            border: none;
+            border-top: 1px solid #ddd;
+            outline: none;
+        }
+
+        button {
+            width: 60px;
+            padding: 10px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            border-top: 1px solid #ddd;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-box" id="chat-box">
+            <!-- Mensagens do chat aparecerão aqui -->
+        </div>
+        <input type="text" id="user-input" placeholder="Digite sua mensagem...">
+        <button onclick="sendMessage()">Enviar</button>
+    </div>
+    <script>
+        async function sendMessage() {
+            const userInput = document.getElementById('user-input').value;
+            if (!userInput) return;
+
+            appendMessage(userInput, 'user');
+
+            document.getElementById('user-input').value = '';
+
+            const response = await getBotResponse(userInput);
+            appendMessage(response, 'bot');
+        }
+
+        function appendMessage(message, sender) {
+            const chatBox = document.getElementById('chat-box');
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', sender);
+            messageElement.textContent = message;
+            chatBox.appendChild(messageElement);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        async function getBotResponse(userInput) {
+            const apiKey = 'YOUR_OPENAI_API_KEY'; // Substitua pela sua chave de API
+            const apiUrl = 'https://api.openai.com/v1/engines/gpt-4/completions';
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    prompt: userInput,
+                    max_tokens: 150,
+                    n: 1,
+                    stop: null,
+                    temperature: 0.7
+                })
+            });
+
+            const data = await response.json();
+            return data.choices[0].text.trim();
+        }
+    </script>
+</body>
+</html>
